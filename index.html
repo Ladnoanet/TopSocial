@@ -1,2 +1,70 @@
-<center><h1>TEST</h1></center>
-<hr>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ТОП — Регистрация</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h2>Регистрация в ТОП</h2>
+  <input id="username" placeholder="Имя пользователя">
+  <button onclick="register()">Зарегистрироваться</button>
+
+  <h3>Пользователи:</h3>
+  <ul id="userList"></ul>
+
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDIzUhQCwOEUaLX59T7dx_Op8XLjSzB9fY",
+    authDomain: "top-social-a5095.firebaseapp.com",
+    databaseURL: "https://top-social-a5095-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "top-social-a5095",
+    storageBucket: "top-social-a5095.appspot.com",
+    messagingSenderId: "759098409457",
+    appId: "1:759098409457:web:a36f924e7c89a932df4450",
+    measurementId: "G-211Y7FLVV0"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Анонимная авторизация
+  firebase.auth().signInAnonymously().then(() => {
+    // После входа — загружаем пользователей
+    loadUsers();
+  }).catch(error => {
+    console.error("Auth error:", error);
+  });
+
+  // Регистрация пользователя
+  function register() {
+    const input = document.getElementById("username");
+    const username = input.value.trim();
+    if (!username) return alert("Введите имя!");
+
+    db.ref("users").push({ name: username }).then(() => {
+      input.value = "";
+      loadUsers(); // перезагружаем список
+    });
+  }
+
+  // Быстрая загрузка всех пользователей
+  function loadUsers() {
+    const userList = document.getElementById("userList");
+    db.ref("users").once("value").then(snapshot => {
+      let html = "";
+      snapshot.forEach(child => {
+        const name = child.val().name;
+        html += `<li>${name}</li>`;
+      });
+      userList.innerHTML = html;
+    }).catch(error => {
+      console.error("Ошибка загрузки пользователей:", error);
+    });
+  }
+</script>
+
+</body>
+</html>
